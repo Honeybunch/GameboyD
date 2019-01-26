@@ -30,6 +30,11 @@ bool ConstructWindow(uint16_t width, uint16_t height, Window* window)
   {
     return false;
   }
+
+  version(OSX)
+  {
+    return false;
+  }
 }
 
 void PollEvents(const Window* window, Event* events, size_t eventCount)
