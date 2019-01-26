@@ -1,9 +1,11 @@
 language: d
 
 matrix:
+  include:
   - os: linux
     d: dmd ldc gdc
 
+  include:
   - os: osx
     d: dmd ldc
 
