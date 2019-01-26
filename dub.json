@@ -1,0 +1,10 @@
+{
+	"authors": [
+		"Honeybunch"
+	],
+	"copyright": "Copyright © 2019, Honeybunch",
+	"description": "A Gameboy emulator written in D",
+	"license": "MIT",
+	"name": "gameboyd",
+	"versions": ["TRACE"]
+}
