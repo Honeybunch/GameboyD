@@ -1,13 +1,17 @@
 language: d
 
+os:
+  - linux
+  - osx
+
+d: 
+  - dmd 
+  - ldc
+
 matrix:
   include:
   - os: linux
-    d: dmd ldc gdc
-
-  include:
-  - os: osx
-    d: dmd ldc
+    d: gdc    
 
 script:
   - dub build -a=x86_64 -b=debug
