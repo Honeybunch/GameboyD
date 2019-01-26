@@ -1,13 +1,19 @@
 language: d
+
+os:
+- linux
+
 d:
   - dmd
   - ldc
   - gdc
 
 os:
-- windows
-- linux
 - osx
+
+d:
+  - dmd
+  - ldc
 
 script:
   - dub build -a=x86_64 -b=debug
