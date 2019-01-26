@@ -1,6 +1,6 @@
 module TWMWin32;
 
-version (Windows)
+version (Windows):
 
 import core.runtime;
 import std.string;
@@ -12,7 +12,7 @@ import core.sys.windows.windows; // windows.h
 public import TWM;
 
 pragma(lib, "gdi32.lib");
-pragma(lib, "winmm.lib");
+pragma(lib, "user32.lib");
 
 auto toUTF16z(S)(S s)
 {
