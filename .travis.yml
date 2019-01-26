@@ -8,11 +8,6 @@ d:
   - dmd 
   - ldc
 
-matrix:
-  include:
-  - os: linux
-    d: gdc    
-
 script:
   - dub build -a=x86_64 -b=debug
   - dub build -a=x86_64 -b=release
