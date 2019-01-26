@@ -25,6 +25,11 @@ bool ConstructWindow(uint16_t width, uint16_t height, Window* window)
   {
     return TWMWin32.ConstructWindow(width, height, window);
   }
+
+  version(linux)
+  {
+    return false;
+  }
 }
 
 void PollEvents(const Window* window, Event* events, size_t eventCount)
