@@ -1,4 +1,4 @@
-module twm.X11;
+module twm.x11;
 
 version (linux):
 
