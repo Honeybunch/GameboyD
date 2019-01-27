@@ -1,4 +1,4 @@
-module Platform;
+module platform;
 
 void debugBreak()
 {

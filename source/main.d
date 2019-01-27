@@ -2,11 +2,12 @@ import std.stdint;
 import std.file;
 import core.stdc.stdio;
 
-import CPU;
-import PPU;
-import Interrupts;
-import Memory;
-import TWM;
+import cpu;
+import ppu;
+import interrupts;
+import memory;
+import twm;
+import rendition;
 
 /// Result of the application
 enum Result
@@ -19,8 +20,8 @@ enum Result
 
 int main()
 {
-  TWM.Window* window = new TWM.Window();
-  TWM.ConstructWindow(PPU.ScreenWidth * 4, PPU.ScreenHeight * 4, window);
+  twm.Window* window = new twm.Window();
+  twm.constructWindow(ppu.ScreenWidth * 4, ppu.ScreenHeight * 4, window);
 
   uint8_t[] rom = cast(uint8_t[])(std.file.read("rom.gb"));
   immutable size_t romSize = rom.length;
@@ -30,43 +31,45 @@ int main()
     return cast(int32_t)(Result.FailedToOpenRomFile);
   }
 
-  CPU.Reset();
+  cpu.Reset();
 
-  Interrupts.Reset();
+  interrupts.Reset();
 
-  PPU.Reset();
+  ppu.Reset();
 
-  if (!Memory.LoadRom(&rom[0], romSize))
+  if (!memory.LoadRom(&rom[0], romSize))
   {
     return cast(int32_t)(Result.FailedToLoadRom);
   }
 
   // Rom is copied to CPU memory, can be freed here
 
-  TWM.Event event;
+  twm.Event event;
 
   while (true)
   {
-    CPU.RunCycle();
+    cpu.RunCycle();
 
-    Interrupts.RunCycle();
+    interrupts.RunCycle();
 
-    PPU.RunCycle();
+    ppu.RunCycle();
 
-    TWM.PollEvents(window, &event, 1);
+    twm.pollEvents(window, &event, 1);
+
+    rendition.Present(window.m_display, null, 0, 0);
 
     debug
     {
-      printf("Num Cycles Executed: %d \n", CPU.GetTotalCyclesCount());
+      printf("Num Cycles Executed: %d \n", cpu.GetTotalCyclesCount());
     }
 
-    if(event == TWM.Event.Exit)
+    if(event == twm.Event.Exit)
     {
       break;
     }
   }
 
-  TWM.ShutdownWindow(window);
+  twm.shutdownWindow(window);
 
   return 0;
 }

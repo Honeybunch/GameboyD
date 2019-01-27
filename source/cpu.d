@@ -1,13 +1,14 @@
-module CPU;
+module cpu;
 
 import std.stdint;
 import std.string;
 import std.stdio;
-public import CPUREG;
-import CPUEXT;
-import Memory;
-import Interrupts;
-import Platform;
+
+public import cpureg;
+import cpuext;
+import memory;
+import interrupts;
+public  import platform;
 
 version (TRACE)
 {
@@ -426,40 +427,40 @@ void Reset()
   registers.sp = 0xfffe;
   registers.pc = 0x0100;
 
-  Memory.Reset();
+  memory.Reset();
 
   // These memory values are set by the Gameboy's boot rom
-  Memory.WriteByte(0xFF05, 0x00);
-  Memory.WriteByte(0xFF06, 0x00);
-  Memory.WriteByte(0xFF07, 0x00);
-  Memory.WriteByte(0xFF10, 0x80);
-  Memory.WriteByte(0xFF11, 0xBF);
-  Memory.WriteByte(0xFF12, 0xF3);
-  Memory.WriteByte(0xFF14, 0xBF);
-  Memory.WriteByte(0xFF16, 0x3F);
-  Memory.WriteByte(0xFF17, 0x00);
-  Memory.WriteByte(0xFF19, 0xBF);
-  Memory.WriteByte(0xFF1A, 0x7F);
-  Memory.WriteByte(0xFF1B, 0xFF);
-  Memory.WriteByte(0xFF1C, 0x9F);
-  Memory.WriteByte(0xFF1E, 0xBF);
-  Memory.WriteByte(0xFF20, 0xFF);
-  Memory.WriteByte(0xFF21, 0x00);
-  Memory.WriteByte(0xFF22, 0x00);
-  Memory.WriteByte(0xFF23, 0xBF);
-  Memory.WriteByte(0xFF24, 0x77);
-  Memory.WriteByte(0xFF25, 0xF3);
-  Memory.WriteByte(0xFF26, 0xF1); // or 0xF0 on the Super Game Boy
-  Memory.WriteByte(0xFF40, 0x91);
-  Memory.WriteByte(0xFF42, 0x00);
-  Memory.WriteByte(0xFF43, 0x00);
-  Memory.WriteByte(0xFF45, 0x00);
-  Memory.WriteByte(0xFF47, 0xFC);
-  Memory.WriteByte(0xFF48, 0xFF);
-  Memory.WriteByte(0xFF49, 0xFF);
-  Memory.WriteByte(0xFF4A, 0x00);
-  Memory.WriteByte(0xFF4B, 0x00);
-  Memory.WriteByte(0xFFFF, 0x00);
+  memory.WriteByte(0xFF05, 0x00);
+  memory.WriteByte(0xFF06, 0x00);
+  memory.WriteByte(0xFF07, 0x00);
+  memory.WriteByte(0xFF10, 0x80);
+  memory.WriteByte(0xFF11, 0xBF);
+  memory.WriteByte(0xFF12, 0xF3);
+  memory.WriteByte(0xFF14, 0xBF);
+  memory.WriteByte(0xFF16, 0x3F);
+  memory.WriteByte(0xFF17, 0x00);
+  memory.WriteByte(0xFF19, 0xBF);
+  memory.WriteByte(0xFF1A, 0x7F);
+  memory.WriteByte(0xFF1B, 0xFF);
+  memory.WriteByte(0xFF1C, 0x9F);
+  memory.WriteByte(0xFF1E, 0xBF);
+  memory.WriteByte(0xFF20, 0xFF);
+  memory.WriteByte(0xFF21, 0x00);
+  memory.WriteByte(0xFF22, 0x00);
+  memory.WriteByte(0xFF23, 0xBF);
+  memory.WriteByte(0xFF24, 0x77);
+  memory.WriteByte(0xFF25, 0xF3);
+  memory.WriteByte(0xFF26, 0xF1); // or 0xF0 on the Super Game Boy
+  memory.WriteByte(0xFF40, 0x91);
+  memory.WriteByte(0xFF42, 0x00);
+  memory.WriteByte(0xFF43, 0x00);
+  memory.WriteByte(0xFF45, 0x00);
+  memory.WriteByte(0xFF47, 0xFC);
+  memory.WriteByte(0xFF48, 0xFF);
+  memory.WriteByte(0xFF49, 0xFF);
+  memory.WriteByte(0xFF4A, 0x00);
+  memory.WriteByte(0xFF4B, 0x00);
+  memory.WriteByte(0xFFFF, 0x00);
 
   version (TRACE)
   {
@@ -476,9 +477,9 @@ void Reset()
 
 version (TRACE)
 {
-  void DumpMemoryToTrace()
+  void DumpmemoryToTrace()
   {
-    const uint8_t* memory = Memory.GetMemory();
+    const uint8_t* memory = memory.GetMemory();
 
     string disassembly;
 
@@ -555,7 +556,7 @@ void RunCycle()
   version (TRACE)
   {
     {
-      const uint8_t instructionIndex = Memory.ReadByte(registers.pc);
+      const uint8_t instructionIndex = memory.ReadByte(registers.pc);
       const(instruction)* inst = &instructions[instructionIndex];
 
       uint16_t param = 0;
@@ -564,13 +565,13 @@ void RunCycle()
       {
       case 1:
         {
-          uint8_t param8 = Memory.ReadByte(cast(uint16_t)(registers.pc + 1));
+          uint8_t param8 = memory.ReadByte(cast(uint16_t)(registers.pc + 1));
           param = param8;
           break;
         }
       case 2:
         {
-          uint16_t param16 = Memory.ReadShort(cast(uint16_t)(registers.pc + 1));
+          uint16_t param16 = memory.ReadShort(cast(uint16_t)(registers.pc + 1));
           param = param16;
           break;
         }
@@ -643,7 +644,7 @@ void RunCycle()
       }
 
       disassembly = format("%s\tff40: %02X ff41: %02X", disassembly,
-          Memory.ReadByte(0xFF40), Memory.ReadByte(0xFF41));
+          memory.ReadByte(0xFF40), memory.ReadByte(0xFF41));
 
       disassembly = format("%s\n", disassembly);
 
@@ -654,14 +655,15 @@ void RunCycle()
   }
 
   // Fetch opcode
-  const uint8_t instructionIndex = Memory.ReadByte(registers.pc++);
+  const uint8_t instructionIndex = memory.ReadByte(registers.pc++);
 
   const(instruction)* inst = &instructions[instructionIndex];
 
   if (inst.m_execution.noParam == null)
   {
     printf("CPU Execution failed! Opcode '%s' not implemented!\n", inst.m_disassembly);
-    Platform.debugBreak();
+    
+    debugBreak();
     return;
   }
 
@@ -678,7 +680,7 @@ void RunCycle()
     }
   case 1:
     {
-      uint8_t param8 = Memory.ReadByte(registers.pc);
+      uint8_t param8 = memory.ReadByte(registers.pc);
       param = param8;
 
       registers.pc++;
@@ -689,7 +691,7 @@ void RunCycle()
     }
   case 2:
     {
-      uint16_t param16 = Memory.ReadShort(registers.pc);
+      uint16_t param16 = memory.ReadShort(registers.pc);
       param = param16;
 
       registers.pc += 2;
@@ -702,7 +704,8 @@ void RunCycle()
     {
       printf("Failed to decode opcode! number of parameters for the instruction " ~ "was invalid '%d'",
           inst.m_numParameters);
-      Platform.debugBreak();
+      
+      debugBreak();
       break;
     }
   }
@@ -1083,12 +1086,12 @@ void cp(uint8_t value)
 void pushToStack(uint16_t value)
 {
   registers.sp -= 2;
-  Memory.WriteShort(registers.sp, value);
+  memory.WriteShort(registers.sp, value);
 }
 
 uint16_t popFromStack()
 {
-  uint16_t result = Memory.ReadShort(registers.sp);
+  uint16_t result = memory.ReadShort(registers.sp);
   registers.sp += 2;
 
   return result;
@@ -1121,7 +1124,7 @@ uint8_t ld_bc_a()
 {
   // Load the value at register A into the position at the address in register
   // BC
-  Memory.WriteByte(registers.bc, registers.a);
+  memory.WriteByte(registers.bc, registers.a);
   return 8;
 }
 
@@ -1157,7 +1160,7 @@ uint8_t ld_b_n(uint8_t n)
 // 0x08
 uint8_t ld_nn_sp(uint16_t nn)
 {
-  Memory.WriteShort(nn, registers.sp);
+  memory.WriteShort(nn, registers.sp);
   return 20;
 }
 
@@ -1206,7 +1209,7 @@ uint8_t ld_de_a()
 {
   // Load the value at register A into the position at the address in register
   // DE
-  Memory.WriteByte(registers.de, registers.a);
+  memory.WriteByte(registers.de, registers.a);
   return 8;
 }
 
@@ -1243,7 +1246,7 @@ uint8_t add_hl_de()
 // 0x1A
 uint8_t ld_a_de()
 {
-  registers.a = Memory.ReadByte(registers.de);
+  registers.a = memory.ReadByte(registers.de);
   return 8;
 }
 
@@ -1292,7 +1295,7 @@ uint8_t ld_hl_nn(uint16_t nn)
 // 0x22
 uint8_t ld_hli_a()
 {
-  Memory.WriteByte(registers.hl, registers.a);
+  memory.WriteByte(registers.hl, registers.a);
   registers.hl++;
   return 8;
 }
@@ -1320,7 +1323,7 @@ uint8_t jr_z_n(uint8_t n)
 // 0x2A
 uint8_t ld_a_hlp(uint16_t nn)
 {
-  registers.a = Memory.ReadByte(registers.hl++);
+  registers.a = memory.ReadByte(registers.hl++);
   return 8;
 }
 
@@ -1368,7 +1371,7 @@ uint8_t ld_hld_a()
 {
   // Load the value in register A into the position at the address in register
   // HL. Then decrement HL
-  Memory.WriteByte(registers.hl, registers.a);
+  memory.WriteByte(registers.hl, registers.a);
   registers.hl--;
 
   return 8;
@@ -1376,12 +1379,12 @@ uint8_t ld_hld_a()
 // 0x34
 uint8_t inc_hlp()
 {
-  uint8_t value = Memory.ReadByte(registers.hl);
+  uint8_t value = memory.ReadByte(registers.hl);
 
   // Call inc to make sure flags are set appropriately
   inc(value);
 
-  Memory.WriteByte(registers.hl, value);
+  memory.WriteByte(registers.hl, value);
 
   return 12;
 }
@@ -1389,12 +1392,12 @@ uint8_t inc_hlp()
 // 0x35
 uint8_t dec_hlp()
 {
-  uint8_t value = Memory.ReadByte(registers.hl);
+  uint8_t value = memory.ReadByte(registers.hl);
 
   // Call dec to make sure flags are set appropriately
   dec(value);
 
-  Memory.WriteByte(registers.hl, value);
+  memory.WriteByte(registers.hl, value);
 
   return 12;
 }
@@ -1402,7 +1405,7 @@ uint8_t dec_hlp()
 // 0x36
 uint8_t ld_hl_n(uint8_t n)
 {
-  Memory.WriteByte(registers.hl, n);
+  memory.WriteByte(registers.hl, n);
   return 12;
 }
 
@@ -1426,7 +1429,7 @@ uint8_t add_hl_sp()
 // 0x3A
 uint8_t ld_a_hld()
 {
-  registers.a = Memory.ReadByte(registers.hl);
+  registers.a = memory.ReadByte(registers.hl);
   registers.hl--;
   return 8;
 }
@@ -1521,7 +1524,7 @@ uint8_t ld_c_h()
 // 0x4E
 uint8_t ld_c_hl()
 {
-  registers.c = Memory.ReadByte(registers.hl);
+  registers.c = memory.ReadByte(registers.hl);
   return 8;
 }
 
@@ -1535,7 +1538,7 @@ uint8_t ld_c_a()
 // 0x56
 uint8_t ld_d_hl()
 {
-  registers.d = Memory.ReadByte(registers.hl);
+  registers.d = memory.ReadByte(registers.hl);
   return 8;
 }
 
@@ -1549,7 +1552,7 @@ uint8_t ld_e_l()
 // 0x5E
 uint8_t ld_e_hl()
 {
-  registers.e = Memory.ReadByte(registers.hl);
+  registers.e = memory.ReadByte(registers.hl);
   return 8;
 }
 
@@ -1570,7 +1573,7 @@ uint8_t ld_h_l()
 // 0x75
 uint8_t ld_hl_l()
 {
-  Memory.WriteByte(registers.hl, registers.l);
+  memory.WriteByte(registers.hl, registers.l);
   return 8;
 }
 
@@ -1598,7 +1601,7 @@ uint8_t ld_a_h()
 // 0x7E
 uint8_t ld_a_hl()
 {
-  registers.a = Memory.ReadByte(registers.hl);
+  registers.a = memory.ReadByte(registers.hl);
   return 8;
 }
 
@@ -1731,7 +1734,7 @@ uint8_t xor_l()
 // 0xAE
 uint8_t xor_hl()
 {
-  common_xor(Memory.ReadByte(registers.hl));
+  common_xor(memory.ReadByte(registers.hl));
   return 8;
 }
 
@@ -1844,7 +1847,7 @@ uint8_t cb_n(uint8_t n)
 {
   // Fetches instruction n from the extended instruction table and executes it
   // The "4" is the fetch cycles represented by this instruction
-  return cast(uint8_t)(4 + CPUEXT.RunExtendedInstruction(n));
+  return cast(uint8_t)(4 + cpuext.RunExtendedInstruction(n));
 }
 
 // 0xCD
@@ -1876,7 +1879,7 @@ uint8_t push_de()
 // 0xD9
 uint8_t reti()
 {
-  Interrupts.EnableMaster();
+  interrupts.EnableMaster();
   return ret();
 }
 
@@ -1890,7 +1893,7 @@ uint8_t rst_18()
 // 0xE0
 uint8_t ldh_n_a(uint8_t n)
 {
-  Memory.WriteByte(0xFF00 + n, registers.a);
+  memory.WriteByte(0xFF00 + n, registers.a);
   return 12;
 }
 
@@ -1903,7 +1906,7 @@ uint8_t pop_hl()
 // 0xE2
 uint8_t ld_ff_c_a()
 {
-  Memory.WriteByte(0xFF00 + registers.c, registers.a);
+  memory.WriteByte(0xFF00 + registers.c, registers.a);
   return 8;
 }
 
@@ -1932,7 +1935,7 @@ uint8_t jp_hl()
 // 0xEA
 uint8_t ld_nn_a(uint16_t nn)
 {
-  Memory.WriteByte(nn, registers.a);
+  memory.WriteByte(nn, registers.a);
   return 16;
 }
 
@@ -1946,7 +1949,7 @@ uint8_t rst_28()
 // 0xF0
 uint8_t ldh_a_n(uint8_t n)
 {
-  registers.a = Memory.ReadByte(0xFF00 + n);
+  registers.a = memory.ReadByte(0xFF00 + n);
   return 12;
 }
 
@@ -1961,7 +1964,7 @@ uint8_t pop_af()
 uint8_t di()
 {
   // Disable interupts
-  Interrupts.DisableMaster();
+  interrupts.DisableMaster();
   return 4;
 }
 
@@ -1975,7 +1978,7 @@ uint8_t push_af()
 // 0xFA
 uint8_t ld_a_nn(uint16_t nn)
 {
-  registers.a = Memory.ReadByte(nn);
+  registers.a = memory.ReadByte(nn);
   return 16;
 }
 
@@ -1983,7 +1986,7 @@ uint8_t ld_a_nn(uint16_t nn)
 uint8_t ei()
 {
   // Enable interupts
-  Interrupts.EnableMaster();
+  interrupts.EnableMaster();
   return 4;
 }
 

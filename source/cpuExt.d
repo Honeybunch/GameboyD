@@ -1,9 +1,10 @@
-module CPUEXT;
+module cpuext;
 
 import std.stdint;
 import core.stdc.stdio;
-import CPUREG;
-import Platform;
+
+import cpureg;
+public import platform;
 
 // Extended instructions can't take any parameters
 struct instruction
@@ -281,7 +282,7 @@ uint8_t RunExtendedInstruction(uint8_t instructionIndex)
   if (extInst.m_execution == null)
   {
     printf("CPU Execution failed! Opcode '%s' not implemented!\n", extInst.m_disassembly);
-    Platform.debugBreak();
+    debugBreak();
     return 0;
   }
 

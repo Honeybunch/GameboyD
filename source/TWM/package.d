@@ -1,16 +1,16 @@
-module TWM;
+module twm;
 
 version(Windows)
 {
-  public import TWM.Win32;
+  public import twm.win32;
 }
 
 version (linux)
 {
-  public import TWM.X11;
+  public import twm.x11;
 }
 
 version (OSX)
 {
-  public import TWM.Cocoa;
+  public import twm.cocoa;
 }

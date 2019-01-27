@@ -1,4 +1,4 @@
-module TWM.Win32;
+module twm.win32;
 
 version (Windows):
 
@@ -9,7 +9,7 @@ import std.stdint;
 
 import core.sys.windows.windows; // windows.h
 
-public import TWM.common;
+public import twm.common;
 
 pragma(lib, "gdi32.lib");
 pragma(lib, "user32.lib");
@@ -34,7 +34,7 @@ LRESULT WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) no
   return 0;
 }
 
-bool ConstructWindow(uint16_t width, uint16_t height, Window* window)
+bool constructWindow(uint16_t width, uint16_t height, Window* window)
 {
   HINSTANCE hInstance = GetModuleHandle(null);
   string win32ClassName = "TWMWWindow";
@@ -57,7 +57,9 @@ bool ConstructWindow(uint16_t width, uint16_t height, Window* window)
     return false;
   }
 
-  HWND hWnd = CreateWindow(win32ClassName.toUTF16z, "GameboyD", WS_OVERLAPPEDWINDOW,
+  DWORD dwStyle = WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX;
+
+  HWND hWnd = CreateWindow(win32ClassName.toUTF16z, "GameboyD", dwStyle,
       CW_USEDEFAULT, CW_USEDEFAULT, width, height, null, null, hInstance, null);
 
   if (!hWnd)
@@ -100,7 +102,7 @@ bool ConstructWindow(uint16_t width, uint16_t height, Window* window)
   return true;
 }
 
-void PollEvents(const Window* window, Event* events, size_t eventCount)
+void pollEvents(const Window* window, Event* events, size_t eventCount)
 {
   MSG msg;
   PeekMessage(&msg, null, 0, 0, PM_REMOVE);
@@ -125,7 +127,7 @@ void PollEvents(const Window* window, Event* events, size_t eventCount)
   }
 }
 
-void ShutdownWindow(Window* window)
+void shutdownWindow(Window* window)
 {
   DestroyWindow(*cast(HWND*)(window.m_window));
 

@@ -1,4 +1,4 @@
-module Memory;
+module memory;
 
 import std.stdint;
 import core.stdc.stdio;
@@ -11,7 +11,7 @@ struct MemoryRange
 
 // 65535 bytes of addressable RAM
 immutable size_t memorySize = uint16_t.max + 1;
-uint8_t[memorySize] memory;
+uint8_t[memorySize] physicalMemory;
 
 immutable MemoryRange cartMemoryRange = {0, 0x7fff};
 immutable MemoryRange spirtePatternTableRange = {0x8000, 0x8FFF};
@@ -35,15 +35,15 @@ immutable uint8_t[ioResetSize] ioReset = [
 
 void Reset()
 { // Zero out memory on startup
-  memory[0 .. memorySize] = 0;
+  physicalMemory[0 .. memorySize] = 0;
 
   // Reset IO
-  memory[ioMemoryRange.m_start .. ioMemoryRange.m_start + ioResetSize] = ioReset[0 .. ioResetSize];
+  physicalMemory[ioMemoryRange.m_start .. ioMemoryRange.m_start + ioResetSize] = ioReset[0 .. ioResetSize];
 }
 
 bool LoadRom(uint8_t* rom, size_t romSize)
 {
-  size_t availableCartSize = Memory.cartMemoryRange.m_end + 1;
+  size_t availableCartSize = cartMemoryRange.m_end + 1;
 
   if (romSize > availableCartSize)
   {
@@ -86,13 +86,13 @@ bool LoadRom(uint8_t* rom, size_t romSize)
     delete disassembly;
   }
 
-  Memory.CopyBlock(0x0000, rom, romSize);
+  CopyBlock(0x0000, rom, romSize);
   return true;
 }
 
 void CopyBlock(uint16_t address, uint8_t* data, size_t size)
 {
-  memory[address .. (address + size)] = data[0 .. size];
+  physicalMemory[address .. (address + size)] = data[0 .. size];
 }
 
 uint8_t ReadByte(uint16_t address)
@@ -104,7 +104,7 @@ uint8_t ReadByte(uint16_t address)
   // and it really shouldn't live in this function but it works for now.
   if (address == 0xff00)
   {
-    uint8_t joypad = memory[address];
+    uint8_t joypad = physicalMemory[address];
 
     uint8_t systemJoypadState = 0xFF;
 
@@ -126,7 +126,7 @@ uint8_t ReadByte(uint16_t address)
     return joypad;
   }
 
-  return memory[address];
+  return physicalMemory[address];
 }
 
 void WriteByte(uint16_t address, uint8_t value)
@@ -148,7 +148,7 @@ void WriteByte(uint16_t address, uint8_t value)
     // For the value already in memory, remove all *but* the last two bits and
     // the first bit. The first bit is alway unused and should be left high
     // 10100001 becomes 10000001
-    uint8_t currentStat = Memory.ReadByte(0xFF41);
+    uint8_t currentStat = ReadByte(0xFF41);
     currentStat &= ~(0b01111100);
 
     // Combine the two values so only the front 6 bits have changed
@@ -156,12 +156,12 @@ void WriteByte(uint16_t address, uint8_t value)
     value |= currentStat;
   }
 
-  memory[address] = value;
+  physicalMemory[address] = value;
 }
 
 void WriteByteInternal(uint16_t address, uint8_t value)
 {
-  memory[address] = value;
+  physicalMemory[address] = value;
 }
 
 uint16_t ReadShort(uint16_t address)
@@ -169,7 +169,7 @@ uint16_t ReadShort(uint16_t address)
   // This is kinda shady, we get the uint8_t* to the byte at the given address
   // and then cast that uint8_t* to a uint16_t* so we read not just that one
   // byte but also the byte after it.
-  return *cast(uint16_t*)(&memory[address]);
+  return *cast(uint16_t*)(&physicalMemory[address]);
 }
 
 void WriteShort(uint16_t address, uint16_t value)
@@ -182,11 +182,11 @@ void WriteShort(uint16_t address, uint16_t value)
   // We need to write a short to an address which means writing
   // the first byte of the short to the first byte at the address
   // and the second byte of the short to the second byte of the address.
-  memory[address] = cast(uint8_t)(value & 0x00ff);
-  memory[address + 1] = cast(uint8_t)((value & 0xff00) >> 8);
+  physicalMemory[address] = cast(uint8_t)(value & 0x00ff);
+  physicalMemory[address + 1] = cast(uint8_t)((value & 0xff00) >> 8);
 }
 
 const(uint8_t)* GetMemory()
 {
-  return &memory[0];
+  return &physicalMemory[0];
 }

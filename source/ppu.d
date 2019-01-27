@@ -1,9 +1,10 @@
-module PPU;
+module ppu;
 
 import std.stdint;
-import Memory;
-import Interrupts;
-import CPU;
+
+import memory;
+import interrupts;
+import cpu;
 
 immutable uint8_t MaxSprites = 40;
 immutable uint8_t MaxSpritesPerScanline = 10;
@@ -44,124 +45,124 @@ immutable uint16_t WXAddress = 0xFF51; // Window X position
 
 uint8_t ReadLCDC()
 {
-  return Memory.ReadByte(LCDCAddress);
+  return memory.ReadByte(LCDCAddress);
 }
 
 uint8_t ReadSTAT()
 {
-  return Memory.ReadByte(STATAddress);
+  return memory.ReadByte(STATAddress);
 }
 
 uint8_t ReadScrollY()
 {
-  return Memory.ReadByte(ScrollYAddress);
+  return memory.ReadByte(ScrollYAddress);
 }
 
 uint8_t ReadScrollX()
 {
-  return Memory.ReadByte(ScrollXAddress);
+  return memory.ReadByte(ScrollXAddress);
 }
 
 uint8_t ReadLY()
 {
-  return Memory.ReadByte(LYAddress);
+  return memory.ReadByte(LYAddress);
 }
 
 uint8_t ReadLYC()
 {
-  return Memory.ReadByte(LYCAddress);
+  return memory.ReadByte(LYCAddress);
 }
 
 uint8_t ReadDMA()
 {
-  return Memory.ReadByte(DMAAddress);
+  return memory.ReadByte(DMAAddress);
 }
 
 uint8_t ReadBGP()
 {
-  return Memory.ReadByte(BGPAddress);
+  return memory.ReadByte(BGPAddress);
 }
 
 uint8_t ReadOBP0()
 {
-  return Memory.ReadByte(OBP0Address);
+  return memory.ReadByte(OBP0Address);
 }
 
 uint8_t ReadOBP1()
 {
-  return Memory.ReadByte(OBP1Address);
+  return memory.ReadByte(OBP1Address);
 }
 
 uint8_t ReadWY()
 {
-  return Memory.ReadByte(WYAddress);
+  return memory.ReadByte(WYAddress);
 }
 
 uint8_t ReadWX()
 {
-  return Memory.ReadByte(WXAddress);
+  return memory.ReadByte(WXAddress);
 }
 
 // Mutators for special registers
 
 void WriteLCDC(uint8_t value)
 {
-  Memory.WriteByteInternal(LCDCAddress, value);
+  memory.WriteByteInternal(LCDCAddress, value);
 }
 
 void WriteSTAT(uint8_t value)
 {
-  Memory.WriteByteInternal(STATAddress, value);
+  memory.WriteByteInternal(STATAddress, value);
 }
 
 void WriteScrollY(uint8_t value)
 {
-  Memory.WriteByteInternal(ScrollYAddress, value);
+  memory.WriteByteInternal(ScrollYAddress, value);
 }
 
 void WriteScrollX(uint8_t value)
 {
-  Memory.WriteByteInternal(ScrollXAddress, value);
+  memory.WriteByteInternal(ScrollXAddress, value);
 }
 
 void WriteLY(uint8_t value)
 {
-  Memory.WriteByteInternal(LYAddress, value);
+  memory.WriteByteInternal(LYAddress, value);
 }
 
 void WriteLYC(uint8_t value)
 {
-  Memory.WriteByteInternal(LYCAddress, value);
+  memory.WriteByteInternal(LYCAddress, value);
 }
 
 void WriteDMA(uint8_t value)
 {
-  Memory.WriteByteInternal(DMAAddress, value);
+  memory.WriteByteInternal(DMAAddress, value);
 }
 
 void WriteBGPA(uint8_t value)
 {
-  Memory.WriteByteInternal(BGPAddress, value);
+  memory.WriteByteInternal(BGPAddress, value);
 }
 
 void WriteOBP0(uint8_t value)
 {
-  Memory.WriteByteInternal(OBP0Address, value);
+  memory.WriteByteInternal(OBP0Address, value);
 }
 
 void WriteOBP1(uint8_t value)
 {
-  Memory.WriteByteInternal(OBP1Address, value);
+  memory.WriteByteInternal(OBP1Address, value);
 }
 
 void WriteWY(uint8_t value)
 {
-  Memory.WriteByteInternal(WYAddress, value);
+  memory.WriteByteInternal(WYAddress, value);
 }
 
 void WriteWX(uint8_t value)
 {
-  Memory.WriteByteInternal(WXAddress, value);
+  memory.WriteByteInternal(WXAddress, value);
 }
 
 enum LCDMode : uint8_t
@@ -244,7 +245,7 @@ void SetLCDStatus()
 
   if (requiredInterrupt && (mode != currentMode))
   {
-    Interrupts.Trigger(Interrupts.Address.LCDStaus);
+    interrupts.Trigger(interrupts.Address.LCDStaus);
   }
 
   // Check coincidence flag
@@ -253,7 +254,7 @@ void SetLCDStatus()
     lcdStatus |= (1 << 2); // Set bit 2
     if (lcdStatus & (1 << 6))
     {
-      Interrupts.Trigger(Interrupts.Address.LCDStaus);
+      interrupts.Trigger(interrupts.Address.LCDStaus);
     }
   }
   else
@@ -289,7 +290,7 @@ void RunCycle()
     return;
   }
 
-  ppuCycles -= CPU.GetLastTickCyclesCount();
+  ppuCycles -= cpu.GetLastTickCyclesCount();
 
   if (ppuCycles <= 0)
   {
@@ -302,7 +303,7 @@ void RunCycle()
     // VBlank
     if (currentLine == ScreenHeight)
     {
-      Interrupts.Trigger(Interrupts.Address.VBlank);
+      interrupts.Trigger(interrupts.Address.VBlank);
     }
     else if (currentLine > 153)
     {

@@ -1,4 +1,4 @@
-module TWM.common;
+module twm.common;
 
 struct Window
 {

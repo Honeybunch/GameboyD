@@ -1,7 +1,7 @@
-module Interrupts;
+module interrupts;
 
-import Memory;
-import CPU;
+import memory;
+import cpu;
 import std.stdint;
 
 immutable uint16_t InterruptEnableAddress = 0xFFFF;
@@ -46,8 +46,8 @@ bool TriggerCycleDelay = false;
 void Reset()
 {
   MasterEnable = false;
-  Memory.WriteByte(InterruptEnableAddress, 0x00);
-  Memory.WriteByte(InterruptFlagsAddress, 0x00);
+  memory.WriteByte(InterruptEnableAddress, 0x00);
+  memory.WriteByte(InterruptFlagsAddress, 0x00);
 }
 
 void DisableMaster()
@@ -63,16 +63,16 @@ void EnableMaster()
 
 void Enable(const Address interruptAddress)
 {
-  uint8_t interruptsEnabled = Memory.ReadByte(InterruptEnableAddress);
+  uint8_t interruptsEnabled = memory.ReadByte(InterruptEnableAddress);
   interruptsEnabled |= InterruptFlags[cast(uint8_t)(interruptAddress)];
-  Memory.WriteByte(InterruptEnableAddress, interruptsEnabled);
+  memory.WriteByte(InterruptEnableAddress, interruptsEnabled);
 }
 
 void Disable(const Address interruptAddress)
 {
-  uint8_t interruptsEnabled = Memory.ReadByte(InterruptEnableAddress);
+  uint8_t interruptsEnabled = memory.ReadByte(InterruptEnableAddress);
   interruptsEnabled &= ~cast(int) InterruptFlags[cast(uint8_t)(interruptAddress)];
-  Memory.WriteByte(InterruptEnableAddress, interruptsEnabled);
+  memory.WriteByte(InterruptEnableAddress, interruptsEnabled);
 }
 
 void Trigger(const Address interruptAddress)
@@ -84,9 +84,9 @@ void Trigger(const Address interruptAddress)
 
   const uint8_t interruptFlag = InterruptFlags[cast(uint8_t)(interruptAddress)];
 
-  uint8_t interruptsTriggered = Memory.ReadByte(InterruptFlagsAddress);
+  uint8_t interruptsTriggered = memory.ReadByte(InterruptFlagsAddress);
   interruptsTriggered |= InterruptFlags[cast(uint8_t)(interruptAddress)];
-  Memory.WriteByte(InterruptFlagsAddress, interruptsTriggered);
+  memory.WriteByte(InterruptFlagsAddress, interruptsTriggered);
 }
 
 void RunCycle()
@@ -105,14 +105,14 @@ void RunCycle()
     return;
   }
 
-  uint8_t interruptsTriggered = Memory.ReadByte(InterruptFlagsAddress);
+  uint8_t interruptsTriggered = memory.ReadByte(InterruptFlagsAddress);
 
   if (interruptsTriggered == 0)
   {
     return;
   }
 
-  uint8_t interruptsEnabled = Memory.ReadByte(InterruptEnableAddress);
+  uint8_t interruptsEnabled = memory.ReadByte(InterruptEnableAddress);
 
   for (uint8_t i = 0; i < NumOfInterrupts; ++i)
   {
@@ -126,13 +126,13 @@ void RunCycle()
       MasterEnable = false;
 
       // Push PC to stack
-      CPU.registers.sp -= 2;
-      Memory.WriteShort(CPU.registers.sp, CPU.registers.pc);
+      cpu.registers.sp -= 2;
+      memory.WriteShort(cpu.registers.sp, cpu.registers.pc);
 
-      CPU.registers.pc = ISRAddresses[i];
+      cpu.registers.pc = ISRAddresses[i];
 
       // Clear interrupt triggered flag
-      Memory.WriteByte(InterruptFlagsAddress, interruptsTriggered &= ~cast(int) interruptFlag);
+      memory.WriteByte(InterruptFlagsAddress, interruptsTriggered &= ~cast(int) interruptFlag);
     }
   }
 }

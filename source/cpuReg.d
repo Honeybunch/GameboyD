@@ -1,4 +1,4 @@
-module CPUREG;
+module cpureg;
 
 import std.stdint;
 
