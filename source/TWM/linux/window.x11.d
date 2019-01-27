@@ -4,7 +4,7 @@ version (linux):
 
 import std.stdint;
 
-public import TWM.common;
+public import twm.common;
 
 bool constructWindow(uint16_t width, uint16_t height, Window* window)
 {

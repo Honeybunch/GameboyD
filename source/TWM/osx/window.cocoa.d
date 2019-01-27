@@ -1,4 +1,4 @@
-module twm.Cocoa;
+module twm.cocoa;
 
 version (OSX):
 
