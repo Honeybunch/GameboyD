@@ -22,3 +22,14 @@ docs/
 
 # Code coverage
 *.lst
+
+# VisualD
+*.sln
+.vs/
+
+# VSCode
+.vscode/
+
+# Data
+*.gb
+*.trace

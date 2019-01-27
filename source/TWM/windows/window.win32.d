@@ -1,4 +1,4 @@
-module TWMWin32;
+module TWM.Win32;
 
 version (Windows):
 
@@ -9,7 +9,7 @@ import std.stdint;
 
 import core.sys.windows.windows; // windows.h
 
-public import TWM;
+public import TWM.common;
 
 pragma(lib, "gdi32.lib");
 pragma(lib, "user32.lib");
